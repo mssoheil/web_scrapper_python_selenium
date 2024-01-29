@@ -11,7 +11,35 @@ options.add_argument('--disable-dev-shm-usage')
 
 driver = webdriver.Chrome(options=options, service=service )
 
-driver.get("https://yahoo.com")
-trending = driver.find_element(By.CLASS_NAME, "trendingNowTextList")
-print(trending.text)
+repo = r"https://github.com/usernam121"
+
+repoPage = driver.get(f"{repo}?tab=repositories")
+repositoriesWrapper = driver.find_element(By.ID, "user-repositories-list")
+
+repositories = repositoriesWrapper.find_elements(By.TAG_NAME, "li")
+
+for repository in repositories:
+    repositoryItem = repository.find_element(By.TAG_NAME, "a")
+    repositoryLink = repositoryItem.get_attribute("href")
+
+    repositoryPage = driver.get(repositoryLink)
+
+    repositoryRow = driver.find_elements(By.CLASS_NAME, "react-directory-row")
+
+    for row in repositoryRow:
+
+        nameCell = row.find_element(By.CLASS_NAME, "react-directory-row-name-cell-large-screen")
+        fileLink = nameCell.find_element(By.TAG_NAME, "a")
+        ariaLabel = fileLink.get_attribute("aria-label")
+        href = fileLink.get_attribute("href")
+
+        if "File" in ariaLabel:
+            driver.get(href)
+            links = driver.find_elements(By.TAG_NAME, "a")
+            for link in links:
+                if link.text == "Raw":
+                    link.click()
+                    html = driver.page_source
+                    print(html)
+
 driver.quit()
